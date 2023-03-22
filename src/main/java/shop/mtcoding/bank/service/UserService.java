@@ -23,7 +23,7 @@ public class UserService {
 
     @Transactional
     public JoinResDto 회원가입(JoinReqDto joinReqDto) {
-        Optional<User> userOp = userRepository.findByUserName(joinReqDto.getUsername());
+        Optional<User> userOp = userRepository.findByUsername(joinReqDto.getUsername());
 
         if (userOp.isPresent()) {
             throw new CustomApiException("동일한 Username이 존재합니다.");
