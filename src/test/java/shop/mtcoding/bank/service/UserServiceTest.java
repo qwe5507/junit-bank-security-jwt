@@ -9,12 +9,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import shop.mtcoding.bank.config.dummy.DummyObject;
 import shop.mtcoding.bank.domain.user.User;
-import shop.mtcoding.bank.domain.user.UserEnum;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.user.UserReqDto.JoinResDto;
 import shop.mtcoding.bank.dto.user.UserResDto.JoinReqDto;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +43,7 @@ class UserServiceTest extends DummyObject {
 
         // 기대행위를 작성하는 것을 stub이라고 한다.
         // stub 1
-        when(userRepository.findByUserName(any())).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
 //        when(userRepository.findByUserName(any())).thenReturn(Optional.of(new User()));
 
         // stub 2
