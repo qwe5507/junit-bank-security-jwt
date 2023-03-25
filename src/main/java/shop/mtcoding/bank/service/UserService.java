@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
-import shop.mtcoding.bank.dto.user.UserReqDto.JoinResDto;
-import shop.mtcoding.bank.dto.user.UserResDto.JoinReqDto;
+import shop.mtcoding.bank.dto.user.UserResDto.JoinResDto;
+import shop.mtcoding.bank.dto.user.UserReqDto.JoinReqDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
 
 import java.util.Optional;
