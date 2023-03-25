@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+// /api/login 에만 동작
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final AuthenticationManager authenticationManager;
@@ -31,7 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.authenticationManager = authenticationManager;
     }
 
-    // Post : "/login"에 동작 함 -> /api/login으로 변경
+    // 원래는 Post : "/login"에 동작 함 -> /api/login으로 변경
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.debug("디버그 : attemptAuthentication 호출됨");
