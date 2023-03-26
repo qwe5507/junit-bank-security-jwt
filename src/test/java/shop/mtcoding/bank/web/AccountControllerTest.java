@@ -40,10 +40,11 @@ class AccountControllerTest extends DummyObject {
     }
 
     // 테스트를 위해 jwt 토큰을 넣어줄 필요는 없고 시큐리티 세션만 넣어주면 된다.
-    // setupBefore=TEST_METHOD (디폴트 옵션, WithUserDetails가 위의 setup() 메소드 실행 되기 전에 수행된다. // setUp()에서 ssar유저를 넣기 전에 시큐리티 검증해서 실패 난다는 뜻임)
+    // setupBefore=TEST_METHOD (디폴트 옵션, WithUserDetails가 위의 setup() 메소드 실행 되기 전에 수행된다. // setUp()에서 ssar유저를 넣기 전에 loadUserByUsername()에서 실패 발생)
     // setupBefore=TEST_EXECUTION (saveAccount_test 메서드 실행 직전 전에 수행 // setUp()실행해서 ssar유저가 insert되고 난 후, 시큐리티 인증 후 saveAccount_test() 테스트 실행)
     @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    // 디비에서 username=ssar 조회를 해서 세션에 담아주는 애노테이션
+//    @WithUserDetails(value = "ssar")
+    // 디비에서 username=ssar 조회를 해서 세션에 담아주는 애노테이션, loadUserByUsername()를 실행시킨다.
     @Test
     public void saveAccount_test() throws Exception {
         // given
