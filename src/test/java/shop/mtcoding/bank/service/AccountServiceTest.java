@@ -14,7 +14,10 @@ import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
+import shop.mtcoding.bank.service.AccountService.AccountListResDto;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,4 +67,25 @@ class AccountServiceTest extends DummyObject {
         assertThat(accountSaveResDto.getNumber()).isEqualTo(1111L);
     }
 
+    @Test
+    public void 계좌목록보기_유저별_test() throws Exception {
+        // given
+        Long userId = 1L;
+
+        // stub
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(ssar));
+
+        Account ssarAccount1 = newMockAccount(1L, 1111L, 1000L, ssar);
+        Account ssarAccount2 = newMockAccount(2L, 2222L, 1000L, ssar);
+        List<Account> accountList = Arrays.asList(ssarAccount1, ssarAccount2);
+        when(accountRepository.findByUser_id(any())).thenReturn(accountList);
+
+        // when
+        AccountListResDto accountListRespDto = accountService.계좌목록보기_유저별(userId);
+
+        // then
+        assertThat(accountListRespDto.getFullname()).isEqualTo("쌀");
+        assertThat(accountListRespDto.getAccounts().size()).isEqualTo(2);
+    }
 }
