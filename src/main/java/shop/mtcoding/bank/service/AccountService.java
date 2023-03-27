@@ -25,7 +25,7 @@ public class AccountService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
 
-    // 각 리스트(List<Account>)에서 Lazy로딩으로 등록되어있는 유저 객체를 유저를 리턴해도 되지만
+    // 각 리스트(List<Account>)에서 Lazy 로딩으로 등록되어있는 유저 객체를 유저를 리턴해도 되지만
     // 굳이 모두 같은 값의 User객체를 가지는데, 굳이 JOIN문을 추가하지 않고 그냥 따로 User객체를 조회하는게 낫다고 함.
     public AccountListResDto 계좌목록보기_유저별(Long userId) {
         User userPS = userRepository.findById(userId).orElseThrow(() -> new CustomApiException("유저를 찾을 수 없습니다."));
