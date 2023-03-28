@@ -13,16 +13,18 @@ import shop.mtcoding.bank.domain.account.AccountRepository;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
+import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
-import shop.mtcoding.bank.service.AccountService.AccountListResDto;
+import shop.mtcoding.bank.handler.ex.CustomApiException;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest extends DummyObject {
@@ -87,5 +89,27 @@ class AccountServiceTest extends DummyObject {
         // then
         assertThat(accountListRespDto.getFullname()).isEqualTo("쌀");
         assertThat(accountListRespDto.getAccounts().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void 계좌삭제_test() throws Exception {
+        // givne
+        Long number = 1111L;
+        Long userId = 1L;
+
+        // stub1
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        Account ssarAccount = newMockAccount(1L, 1111L, 1000L, ssar);
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount));
+
+        // 실행 로직의 accountRepository.deleteById(accountPS.getId());는 리턴되는게 없기 때문에 stub할 필요 없다
+        accountService.계좌삭제(number, userId);
+        // when
+
+        // then
+//        assertThrows(CustomApiException.class, () -> accountService.계좌삭제(number, userId));
+
+        // Then
+        verify(accountRepository, times(1)).deleteById(ssarAccount.getId());
     }
 }

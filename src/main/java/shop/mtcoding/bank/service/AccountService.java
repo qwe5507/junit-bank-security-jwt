@@ -1,8 +1,6 @@
 package shop.mtcoding.bank.service;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.mtcoding.bank.domain.account.Account;
@@ -10,13 +8,12 @@ import shop.mtcoding.bank.domain.account.AccountRepository;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
+import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,8 +22,8 @@ public class AccountService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
 
-    // 각 리스트(List<Account>)에서 Lazy 로딩으로 등록되어있는 유저 객체를 유저를 리턴해도 되지만
-    // 굳이 모두 같은 값의 User객체를 가지는데, 굳이 JOIN문을 추가하지 않고 그냥 따로 User객체를 조회하는게 낫다고 함.
+    // 각 리스트(List<Account>)에서 Lazy 로딩으로 등록되어있는 유저 객체를 리턴해도 되지만
+    // 굳이 모두 같은 값의 User객체를 가지는데, 굳이 Join문을 추가하지 않고 그냥 따로 User객체를 조회하는게 낫다고 함.
     public AccountListResDto 계좌목록보기_유저별(Long userId) {
         User userPS = userRepository.findById(userId).orElseThrow(() -> new CustomApiException("유저를 찾을 수 없습니다."));
 
@@ -54,31 +51,17 @@ public class AccountService {
         return new AccountSaveResDto(account);
     }
 
-    @Getter
-    @Setter
-    public static class AccountListResDto {
-        private String fullname;
-        private List<AccountDto> accounts = new ArrayList<>();
+    @Transactional
+    public void 계좌삭제(Long accountNumber, Long userId) {
+        // 1. 계좌 확인
+        Account accountPS = accountRepository.findByNumber(accountNumber)
+                .orElseThrow(() -> new CustomApiException("계좌를 찾을 수 없습니다."));
 
-        public AccountListResDto(User user, List<Account> accounts) {
-            this.fullname = user.getFullname();
-            this.accounts = accounts.stream().map(AccountDto::new).collect(Collectors.toList());
-        }
+        // 2. 계좌 소유자 인지 확인 (계좌의 userId와 로그인한 userId를 비교 한다.)
+        accountPS.checkOwner(userId);
 
-        @Getter
-        @Setter
-        public class AccountDto {
-            private Long id;
-            private Long number;
-            private Long balance;
-
-            public AccountDto(Account account) {
-                this.id = account.getId();
-                this.number = account.getNumber();
-                this.balance = account.getBalance();
-            }
-        }
+        // 3. 계좌 삭제
+        accountRepository.deleteById(accountPS.getId());
     }
-
 
 }
