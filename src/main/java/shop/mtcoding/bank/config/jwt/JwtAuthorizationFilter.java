@@ -17,7 +17,6 @@ import java.io.IOException;
 
 /**
  * 모든 주소에서 동작함 (토큰 검증)
- * - 토큰이 있을때만
  */
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final Logger log = LoggerFactory.getLogger(getClass());
