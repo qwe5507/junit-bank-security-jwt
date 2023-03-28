@@ -1,17 +1,28 @@
 package shop.mtcoding.bank.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
+import shop.mtcoding.bank.domain.transaction.TransactRepository;
+import shop.mtcoding.bank.domain.transaction.Transaction;
+import shop.mtcoding.bank.domain.transaction.TransactionEnum;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
+import shop.mtcoding.bank.util.CustomDateUtil;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +32,8 @@ import java.util.Optional;
 public class AccountService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+
+    private final TransactRepository transactRepository;
 
     // 각 리스트(List<Account>)에서 Lazy 로딩으로 등록되어있는 유저 객체를 리턴해도 되지만
     // 굳이 모두 같은 값의 User객체를 가지는데, 굳이 Join문을 추가하지 않고 그냥 따로 User객체를 조회하는게 낫다고 함.
@@ -64,4 +77,93 @@ public class AccountService {
         accountRepository.deleteById(accountPS.getId());
     }
 
+    // 인증이 필요 없다. 그냥 입금이기 때문에
+    @Transactional
+    public AccountDepositResDto 계좌입금(AccountDepositReqDto accountDepositReqDto) { // ATM -> 누군가의 계좌
+        // 0원 체크 (spring validation으로 체크해도 됨)
+        if (accountDepositReqDto.getAmount() < 0) {
+            throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+        }
+
+        // 입금 계좌 확인
+        Account depositAccountPS = accountRepository.findByNumber(accountDepositReqDto.getNumber())
+                .orElseThrow(() -> new CustomApiException("계좌를 찾을 수 없습니다."));
+
+        // 입금 (해당 계좌 balance 조정 - update문 - 더티체킹)
+        depositAccountPS.deposit(accountDepositReqDto.amount);
+
+        // 거래내역 남기기
+        Transaction transaction = Transaction.builder()
+                .depositAccount(depositAccountPS) // 입금계좌
+                .withdrawAccount(null) // 출금계좌없음, ATM 기에서 계좌로 입금하는 거니깐
+                .depositAccountBalance(depositAccountPS.getBalance()) // 입금 당시의 계좌의 금액
+                .withdrawAccountBalance(null)
+                .amount(accountDepositReqDto.getAmount()) // 금액 (여기선 입금금액)
+                .gubun(TransactionEnum.DEPOSIT)
+                .sender("ATM")
+                .receiver(accountDepositReqDto.getNumber() + "")
+                .tel(accountDepositReqDto.getTel())
+                .build();
+
+        Transaction transactionPS = transactRepository.save(transaction);
+
+        // 입금 성공 응답 Dto 리턴
+        return new AccountDepositResDto(depositAccountPS, transactionPS);
+    }
+
+    @Getter
+    @Setter
+    public static class AccountDepositResDto {
+        private Long id; // 계좌 ID
+        private Long number; // 계좌번호
+        private TransactionDto transaction; // 이런 로그가 남았다.
+
+        public AccountDepositResDto(Account account, Transaction transaction) {
+            this.id = account.getId();
+            this.number = account.getNumber();
+            this.transaction = new TransactionDto(transaction);
+        }
+
+        // ATM기에 입금했다고 계좌의 남은 금액 같은 중요정보가 보여선 안된다.
+        @Getter
+        @Setter
+        public class TransactionDto { // 무슨로그가 남았는지
+            private Long id;
+            private String gubun;
+            private String sender;
+            private String reciver;
+            private Long amount;
+            @JsonIgnore
+            private Long depositAccountBalance; // 클라이언트에게 전달 X - 서비스단 테스트 용도로 @JsonIgnore
+            private String tel;
+            private String createdAt;
+
+            public TransactionDto(Transaction transaction) {
+                this.id = transaction.getId();
+                this.gubun = transaction.getGubun().getValue();
+                this.sender = transaction.getSender();
+                this.reciver = transaction.getReceiver();
+                this.amount = transaction.getAmount();
+                this.depositAccountBalance = transaction.getDepositAccountBalance();
+                this.tel = transaction.getTel();
+                this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
+            }
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class AccountDepositReqDto { // ATM -> 계좌 , 입금 요청 객체
+        @NotNull
+        @Digits(integer = 4, fraction = 4)
+        private Long number;
+        @NotNull
+        private Long amount;
+        @NotEmpty
+        @Pattern(regexp = "^(DEPOSIT)$") // DEPOSIT만 가능, []는 범위, 정확하게 지정할떈 ()
+        private String gubun; // DEPOSIT
+        @NotEmpty
+        @Pattern(regexp = "^[0-9]{11}")
+        private String tel;
+    }
 }

@@ -77,4 +77,33 @@ public class RegexTest {
         Assertions.assertTrue(result);
     }
 
+    //----- 계좌 입금 Req 객체 테스트
+    @Test
+    public void account_gubun_test1() throws Exception {
+        String gubun = "DEPOSIT";
+        boolean result = Pattern.matches("^(DEPOSIT)$", gubun);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void account_gubun_test2() throws Exception {
+        String gubun = "TRANSFER";
+        boolean result = Pattern.matches("^(DEPOSIT|TRANSFER)$", gubun);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void account_tel_test() throws Exception {
+        String tel = "010-2729-3256";
+        boolean result = Pattern.matches("^[0-9]{3}-[0-9]{4}-[0-9]{4}", tel);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void account_tel_test2() throws Exception {
+        String tel = "01027293256";
+        boolean result = Pattern.matches("^[0-9]{11}", tel);
+        Assertions.assertTrue(result);
+    }
+
 }
