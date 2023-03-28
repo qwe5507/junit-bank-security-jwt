@@ -14,6 +14,7 @@ public class DummyDevInit extends DummyObject {
     @Profile("dev") //prod 모드에선 실행되면 안된다.
     @Bean
     CommandLineRunner init(UserRepository userRepository) {
+        System.out.println("DummyDevInit 실행");
         return (args) -> {
             // 서버 실행시엔 무조건 실행된다.
             User user = userRepository.save(newUser("ssar", "쌀"));
