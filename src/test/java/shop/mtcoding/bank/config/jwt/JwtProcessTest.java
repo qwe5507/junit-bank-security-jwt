@@ -1,6 +1,5 @@
 package shop.mtcoding.bank.config.jwt;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import shop.mtcoding.bank.config.auth.LoginUser;
 import shop.mtcoding.bank.domain.user.User;
@@ -24,16 +23,23 @@ class JwtProcessTest {
         assertThat(jwtToken.startsWith(JwtVO.TOKEN_PREFIX)).isTrue();
     }
 
+    private String createToken() {
+        User user = User.builder().id(1L).role(UserEnum.CUSTOMER).build();
+        LoginUser loginUser1 = new LoginUser(user);
+        String jwtToken = JwtProcess.create(loginUser1);
+        return jwtToken;
+    }
+
     @Test
     public void verify_test() {
         // given
-        String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJiYW5rIiwicm9sZSI6IkNVU1RPTUVSIiwiaWQiOjEsImV4cCI6MTY4MDMzNDI1OH0.Oj0M0dAMaUE_pCZRlsWp6Kb1QpGKVa2mQvt3i8zKjJfwxkcg4rg3_u2tbXzUwxJnTHLeTJHBstmUo0arXO4QYA";
+        String token = createToken();
 
         // when
-        LoginUser loginUser = JwtProcess.verify(jwtToken);
+        LoginUser loginUser2 = JwtProcess.verify(token.replace(JwtVO.TOKEN_PREFIX, ""));
 
         // then
-        assertThat(loginUser.getUser().getId()).isEqualTo(1L);
-        assertThat(loginUser.getUser().getRole()).isEqualTo(UserEnum.CUSTOMER);
+        assertThat(loginUser2.getUser().getId()).isEqualTo(1L);
+        assertThat(loginUser2.getUser().getRole()).isEqualTo(UserEnum.CUSTOMER);
     }
 }
