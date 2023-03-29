@@ -10,19 +10,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import shop.mtcoding.bank.config.dummy.DummyObject;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
+import shop.mtcoding.bank.domain.transaction.TransactRepository;
+import shop.mtcoding.bank.domain.transaction.Transaction;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
+import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
+import shop.mtcoding.bank.dto.account.AccountResDto;
+import shop.mtcoding.bank.dto.account.AccountResDto.AccountDepositResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
-import shop.mtcoding.bank.handler.ex.CustomApiException;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -36,6 +39,9 @@ class AccountServiceTest extends DummyObject {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private TransactRepository transactRepository;
 
     @Spy
     private ObjectMapper om;
@@ -111,5 +117,32 @@ class AccountServiceTest extends DummyObject {
 
         // Then
         verify(accountRepository, times(1)).deleteById(ssarAccount.getId());
+    }
+
+    // Account -> balance 변경 됐는지
+    // Transaction -> balance 잘 기록 됐는지
+    @Test
+    public void 계좌입금_test() throws Exception {
+        // givne
+        AccountDepositReqDto accountDepositReqDto = new AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun("DEPOSIT");
+        accountDepositReqDto.setTel("01027293256");
+
+        // stub1
+        User ssar = newMockUser(1L, "ssar", "쌀"); // 실행 됨
+        Account ssarAccount1 = newMockAccount(1L, 1111L, 1000L, ssar); // 실행 됨 - ssarAccount1 계좌 1000원
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount1)); // 실행 안됨 -> service 호출 후 실행됨 -> ssarAccount1 계좌 1100원
+
+        // stub2
+        Transaction transaction = newMockDepositTransaction(1L, ssarAccount1); // 실행 됨 - ssarAccount1 계좌 1100원
+        when(transactRepository.save(any())).thenReturn(transaction); // 실행 안됨
+
+        // when
+        AccountDepositResDto accountDepositResDto = accountService.계좌입금(accountDepositReqDto);
+        System.out.println(accountDepositResDto.getTransaction().getDepositAccountBalance());
+        System.out.println(ssarAccount1.getBalance());
+        // Then
     }
 }
