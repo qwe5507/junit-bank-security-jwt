@@ -135,14 +135,18 @@ class AccountServiceTest extends DummyObject {
         Account ssarAccount1 = newMockAccount(1L, 1111L, 1000L, ssar); // 실행 됨 - ssarAccount1 계좌 1000원
         when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount1)); // 실행 안됨 -> service 호출 후 실행됨 -> ssarAccount1 계좌 1100원
 
-        // stub2
-        Transaction transaction = newMockDepositTransaction(1L, ssarAccount1); // 실행 됨 - ssarAccount1 계좌 1100원
+        // stub2 (스텁이 진행될 때 마다 연관된 객체는 새로 만들어서 주입하기 - 타이밍 때문에 꼬인다.)
+        Account ssarAccount2 = newMockAccount(1L, 1111L, 1000L, ssar);
+        Transaction transaction = newMockDepositTransaction(1L, ssarAccount2); // 실행 됨 - ssarAccount1 계좌 1100원
         when(transactRepository.save(any())).thenReturn(transaction); // 실행 안됨
 
         // when
         AccountDepositResDto accountDepositResDto = accountService.계좌입금(accountDepositReqDto);
         System.out.println(accountDepositResDto.getTransaction().getDepositAccountBalance());
         System.out.println(ssarAccount1.getBalance());
+
         // Then
+        assertThat(ssarAccount1.getBalance()).isEqualTo(1100L);
+        assertThat(accountDepositResDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
     }
 }
