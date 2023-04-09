@@ -1,9 +1,6 @@
 package shop.mtcoding.bank.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.mtcoding.bank.domain.account.Account;
@@ -13,6 +10,7 @@ import shop.mtcoding.bank.domain.transaction.Transaction;
 import shop.mtcoding.bank.domain.transaction.TransactionEnum;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
+import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.account.AccountResDto;
@@ -20,12 +18,7 @@ import shop.mtcoding.bank.dto.account.AccountResDto.AccountDepositResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
-import shop.mtcoding.bank.util.CustomDateUtil;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,7 +77,7 @@ public class AccountService {
     @Transactional
     public AccountDepositResDto 계좌입금(AccountDepositReqDto accountDepositReqDto) { // ATM -> 누군가의 계좌
         // 0원 체크 (spring validation으로 체크해도 됨)
-        if (accountDepositReqDto.getAmount() < 0) {
+        if (accountDepositReqDto.getAmount() <= 0) {
             throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
         }
 
@@ -117,9 +110,9 @@ public class AccountService {
 
     // 로그인이 되어 있어야 함
     @Transactional
-    public AccountWithdrawResDto 계좌출금(AccountWithdrawReqDto accountWithdrawReqDto, Long userId) {
+    public AccountResDto.AccountWithdrawResDto 계좌출금(AccountReqDto.AccountWithdrawReqDto accountWithdrawReqDto, Long userId) {
         // 0원 체크 (spring validation으로 체크해도 됨)
-        if (accountWithdrawReqDto.getAmount() < 0) {
+        if (accountWithdrawReqDto.getAmount() <= 0) {
             throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
         }
 
@@ -147,63 +140,13 @@ public class AccountService {
                 .depositAccountBalance(null)
                 .amount(accountWithdrawReqDto.getAmount()) // 금액 (여기선 입금금액)
                 .gubun(TransactionEnum.WITHDRAW)
-                .sender(accountWithdrawReqDto.getNumber()+"")
+                .sender(accountWithdrawReqDto.getNumber() + "")
                 .receiver("ATM")
                 .build();
 
         Transaction transactionPS = transactRepository.save(transaction);
 
         // DTO 응답
-        return new AccountWithdrawResDto(withdrawAccountPS, transactionPS);
-    }
-    @Getter
-    @Setter
-    public static class AccountWithdrawResDto {
-        private Long id; // 계좌 ID
-        private Long number; // 계좌번호
-        private Long balance; // 잔액
-        private TransactionDto transaction;
-
-        public AccountWithdrawResDto(Account account, Transaction transaction) {
-            this.id = account.getId();
-            this.number = account.getNumber();
-            this.balance = account.getBalance();
-            this.transaction = new TransactionDto(transaction);
-        }
-
-        @Getter
-        @Setter
-        public class TransactionDto { // 무슨로그가 남았는지
-            private Long id;
-            private String gubun;
-            private String sender;
-            private String reciver;
-            private Long amount;
-            private String createdAt;
-
-            public TransactionDto(Transaction transaction) {
-                this.id = transaction.getId();
-                this.gubun = transaction.getGubun().getValue();
-                this.sender = transaction.getSender();
-                this.reciver = transaction.getReceiver();
-                this.amount = transaction.getAmount();
-                this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
-            }
-        }
-    }
-    @Getter
-    @Setter
-    public static class AccountWithdrawReqDto {
-        @NotNull
-        @Digits(integer = 4, fraction = 4)
-        private Long number;
-        @NotNull
-        @Digits(integer = 4, fraction = 4)
-        private Long password;
-        @NotNull
-        private Long amount;
-        @NotEmpty
-        @Pattern(regexp = "^(WITHDRAW)$")
-        private String gubun;
+        return new AccountResDto.AccountWithdrawResDto(withdrawAccountPS, transactionPS);
     }
 }

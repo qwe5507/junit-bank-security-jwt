@@ -14,6 +14,7 @@ import shop.mtcoding.bank.domain.transaction.TransactRepository;
 import shop.mtcoding.bank.domain.transaction.Transaction;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
+import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.account.AccountResDto;
@@ -218,6 +219,34 @@ class AccountServiceTest extends DummyObject {
     }
 
     // 계좌 출금_테스트
+    // 꼭 확인이 필요한 로직만 테스트
+    @Test
+    public void 계좌출금_test() throws Exception {
+        // given
+        Long amount = 100L;
+        Long userId = 1L;
+        Long password = 1234L;
+
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        Account ssarAccount = newMockAccount(1L, 1111L, 1000L, ssar);
+
+        // when
+        // 0원 체크 (spring validation으로 체크해도 됨)
+        if (amount <= 0) {
+            throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+        }
+        // 출금 소유자 확인
+        ssarAccount.checkOwner(userId);
+        // 비밀번호 확인
+        ssarAccount.checkSamePassword(password);
+        // 잔액확인
+        ssarAccount.checkBalance(amount);
+        // 출금하기
+        ssarAccount.withdraw(amount);
+
+        // then
+        assertThat(ssarAccount.getBalance()).isEqualTo(900L);
+    }
 
     // 계좌 이체_테스트
 
