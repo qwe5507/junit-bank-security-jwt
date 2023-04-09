@@ -18,6 +18,7 @@ import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
+import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
 
@@ -111,5 +112,29 @@ class AccountControllerTest extends DummyObject {
                 () -> new CustomApiException("계좌를 찾을 수 없습니다.")));
         // Junit의 맨 마지막 쿼리는 발생하지 않는다고 함(?),
         // -> 근데 롤백 때문인거 같음..
+    }
+
+    @Test
+    public void depositAccount_test() throws Exception {
+        // givne
+        AccountReqDto.AccountDepositReqDto accountDepositReqDto = new AccountReqDto.AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun("DEPOSIT");
+        accountDepositReqDto.setTel("01027293256");
+
+        String requestBody = om.writeValueAsString(accountDepositReqDto);
+        System.out.println("테스트 : " + requestBody);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(post("/api/account/deposit")
+                .content(requestBody).contentType(MediaType.APPLICATION_JSON));
+
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+        // then
+        resultActions.andExpect(status().isOk());
+        // 계좌의 잔액이 추가되는건 Service test에서 테스트 했기 때문에, Dto가 잘만들어 졌는지(성공처리 되었는지)만 테스트
     }
 }
