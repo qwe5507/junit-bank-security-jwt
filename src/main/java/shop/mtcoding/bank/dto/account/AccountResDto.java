@@ -76,7 +76,7 @@ public class AccountResDto {
             private String reciver;
             private Long amount;
             @JsonIgnore
-            private Long depositAccountBalance; // 클라이언트에게 전달 X - 서비스단 테스트 용도로 @JsonIgnore
+            private Long depositAccountBalance; // 입금이니 클라이언트에게 전달 X - 서비스단 테스트 용도로 @JsonIgnore
             private String tel;
             private String createdAt;
 
