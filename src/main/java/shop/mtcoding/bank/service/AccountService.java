@@ -85,6 +85,7 @@ public class AccountService {
 
         // 입금 (해당 계좌 balance 조정 - update문 - 더티체킹)
         depositAccountPS.deposit(accountDepositReqDto.getAmount());
+        System.out.println("accountDepositReqDto.getAmount() :: " + depositAccountPS.getBalance());
 
         // 거래내역 남기기
         Transaction transaction = Transaction.builder()
