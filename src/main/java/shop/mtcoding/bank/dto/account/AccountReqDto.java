@@ -63,4 +63,29 @@ public class AccountReqDto {
         @Pattern(regexp = "^(WITHDRAW)$")
         private String gubun;
     }
+
+    @Getter
+    @Setter
+    public static class AccountTransferReqDto {
+        @NotNull
+        @Digits(integer = 4, fraction = 4)
+        private Long withdrawNumber; // 출금계좌
+
+        @NotNull
+        @Digits(integer = 4, fraction = 4)
+        private Long depositNumber; // 입금계좌
+
+        @NotNull
+        @Digits(integer = 4, fraction = 4)
+        private Long withdrawPassword;
+
+        @NotNull
+        private Long amount;
+
+        @NotEmpty
+        @Pattern(regexp = "^(TRANSFER)$")
+        private String gubun;
+    }
+
+
 }
