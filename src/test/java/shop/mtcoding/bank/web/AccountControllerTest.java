@@ -20,6 +20,7 @@ import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
+import shop.mtcoding.bank.dto.account.AccountReqDto.AccountTransferReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountWithdrawReqDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
 
@@ -159,7 +160,32 @@ class AccountControllerTest extends DummyObject {
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : " + responseBody);
 
+        // then
+        resultActions.andExpect(status().isOk());
+    }
+
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @Test
+    public void transferAccount_test() throws Exception {
+        // given
+        AccountTransferReqDto reqDto = new AccountTransferReqDto();
+        reqDto.setWithdrawNumber(1111L);
+        reqDto.setDepositNumber(2222L);
+        reqDto.setWithdrawPassword(1234L);
+        reqDto.setAmount(100L);
+        reqDto.setGubun("TRANSFER");
+
+        String requestBody = om.writeValueAsString(reqDto);
+        System.out.println("테스트 : " + requestBody);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(post("/api/s/account/transfer")
+                .content(requestBody).contentType(MediaType.APPLICATION_JSON));
+
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
 
         // then
+        resultActions.andExpect(status().isOk());
     }
 }

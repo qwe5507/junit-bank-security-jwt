@@ -163,6 +163,7 @@ public class AccountResDto {
                 this.sender = transaction.getSender();
                 this.reciver = transaction.getReceiver();
                 this.amount = transaction.getAmount();
+                this.depositAccountBalance = transaction.getDepositAccountBalance();
                 this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
             }
         }

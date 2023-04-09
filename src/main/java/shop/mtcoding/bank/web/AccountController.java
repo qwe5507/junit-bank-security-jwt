@@ -11,12 +11,10 @@ import shop.mtcoding.bank.dto.ResponseDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
+import shop.mtcoding.bank.dto.account.AccountReqDto.AccountTransferReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountWithdrawReqDto;
 import shop.mtcoding.bank.dto.account.AccountResDto;
-import shop.mtcoding.bank.dto.account.AccountResDto.AccountDepositResDto;
-import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
-import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
-import shop.mtcoding.bank.dto.account.AccountResDto.AccountWithdrawResDto;
+import shop.mtcoding.bank.dto.account.AccountResDto.*;
 import shop.mtcoding.bank.service.AccountService;
 
 import javax.validation.Valid;
@@ -62,5 +60,12 @@ public class AccountController {
                                              @AuthenticationPrincipal LoginUser loginUser) {
         AccountWithdrawResDto accountWithdrawResDto = accountService.계좌출금(accountWithdrawReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 출금 완료",  accountWithdrawResDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/s/account/transfer") // 계좌 이체
+    public ResponseEntity<?> transferAccount(@RequestBody @Valid AccountTransferReqDto accountTransferReqDto, BindingResult bindingResult,
+                                             @AuthenticationPrincipal LoginUser loginUser) {
+        AccountTransferResDto accountTransferResDto = accountService.계좌이체(accountTransferReqDto, loginUser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 이체 완료",  accountTransferResDto), HttpStatus.OK);
     }
 }
