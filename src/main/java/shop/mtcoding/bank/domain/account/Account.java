@@ -57,7 +57,7 @@ public class Account {
 //        String testUsername = user.getUsername(); // 이때는 Lazy 로딩이 되어야 함, 그러나 그전에 영속 컨텍스트에 존재하면 조회하지 않음
 //        System.out.println("유저네임 : " + testUsername);
 
-        if (user.getId() != userId) { // Lazy 로딩이어도 id를 조회할 때는 select 쿼리가 날라가지 않는다.
+        if (user.getId().longValue() != userId.longValue()) { // Lazy 로딩이어도 id를 조회할 때는 select 쿼리가 날라가지 않는다.
             throw new CustomApiException("계좌 소유자가 아닙니다.");
         }
     }

@@ -253,7 +253,7 @@ class AccountServiceTest extends DummyObject {
     @Test
     public void 계좌이체_test() throws Exception {
         // given
-        Long userId = 1L;
+        Long userId = 1000L;
         AccountTransferReqDto accountTransferReqDto = new AccountTransferReqDto();
         accountTransferReqDto.setWithdrawNumber(1111L);
         accountTransferReqDto.setDepositNumber(2222L);
@@ -261,8 +261,8 @@ class AccountServiceTest extends DummyObject {
         accountTransferReqDto.setAmount(100L);
         accountTransferReqDto.setGubun("TRANSFER");
 
-        User ssar = newMockUser(1L, "ssar", "쌀");
-        User cos = newMockUser(2L, "cos", "코스");
+        User ssar = newMockUser(1000L, "ssar", "쌀");
+        User cos = newMockUser(2000L, "cos", "코스");
         Account withdrawAccount = newMockAccount(1L, 1111L, 1000L, ssar);
         Account depositAccount = newMockAccount(2L, 2222L, 1000L, cos);
         // when
