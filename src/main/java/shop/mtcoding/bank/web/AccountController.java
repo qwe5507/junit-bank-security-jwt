@@ -8,11 +8,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import shop.mtcoding.bank.config.auth.LoginUser;
 import shop.mtcoding.bank.dto.ResponseDto;
+import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
+import shop.mtcoding.bank.dto.account.AccountReqDto.AccountWithdrawReqDto;
+import shop.mtcoding.bank.dto.account.AccountResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountDepositResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
+import shop.mtcoding.bank.dto.account.AccountResDto.AccountWithdrawResDto;
 import shop.mtcoding.bank.service.AccountService;
 
 import javax.validation.Valid;
@@ -51,5 +55,12 @@ public class AccountController {
     public ResponseEntity<?> depositAccount(@RequestBody @Valid AccountDepositReqDto accountDepositReqDto, BindingResult bindingResult) {
         AccountDepositResDto accountDepositResDto = accountService.계좌입금(accountDepositReqDto);
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 입금 완료", accountDepositResDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/s/account/withdraw") // 계좌 출금
+    public ResponseEntity<?> withdrawAccount(@RequestBody @Valid AccountWithdrawReqDto accountWithdrawReqDto, BindingResult bindingResult,
+                                             @AuthenticationPrincipal LoginUser loginUser) {
+        AccountWithdrawResDto accountWithdrawResDto = accountService.계좌출금(accountWithdrawReqDto, loginUser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 출금 완료",  accountWithdrawResDto), HttpStatus.OK);
     }
 }

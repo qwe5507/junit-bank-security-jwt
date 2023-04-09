@@ -20,6 +20,7 @@ import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
+import shop.mtcoding.bank.dto.account.AccountReqDto.AccountWithdrawReqDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
 
 import javax.persistence.EntityManager;
@@ -136,5 +137,29 @@ class AccountControllerTest extends DummyObject {
         // then
         resultActions.andExpect(status().isOk());
         // 계좌의 잔액이 추가되는건 Service test에서 테스트 했기 때문에, Dto가 잘만들어 졌는지(성공처리 되었는지)만 테스트
+    }
+
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @Test
+    public void withdrawAccount_test() throws Exception {
+        // given
+        AccountWithdrawReqDto reqDto = new AccountWithdrawReqDto();
+        reqDto.setNumber(1111L);
+        reqDto.setPassword(1234L);
+        reqDto.setAmount(100L);
+        reqDto.setGubun("WITHDRAW");
+
+        String requestBody = om.writeValueAsString(reqDto);
+        System.out.println("테스트 : " + requestBody);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(post("/api/s/account/withdraw")
+                .content(requestBody).contentType(MediaType.APPLICATION_JSON));
+
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+
+        // then
     }
 }

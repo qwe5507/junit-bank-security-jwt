@@ -10,13 +10,13 @@ import shop.mtcoding.bank.domain.transaction.Transaction;
 import shop.mtcoding.bank.domain.transaction.TransactionEnum;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
-import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
-import shop.mtcoding.bank.dto.account.AccountResDto;
+import shop.mtcoding.bank.dto.account.AccountReqDto.AccountWithdrawReqDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountDepositResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
+import shop.mtcoding.bank.dto.account.AccountResDto.AccountWithdrawResDto;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
 
 import java.util.List;
@@ -110,7 +110,7 @@ public class AccountService {
 
     // 로그인이 되어 있어야 함
     @Transactional
-    public AccountResDto.AccountWithdrawResDto 계좌출금(AccountReqDto.AccountWithdrawReqDto accountWithdrawReqDto, Long userId) {
+    public AccountWithdrawResDto 계좌출금(AccountWithdrawReqDto accountWithdrawReqDto, Long userId) {
         // 0원 체크 (spring validation으로 체크해도 됨)
         if (accountWithdrawReqDto.getAmount() <= 0) {
             throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
@@ -147,6 +147,6 @@ public class AccountService {
         Transaction transactionPS = transactRepository.save(transaction);
 
         // DTO 응답
-        return new AccountResDto.AccountWithdrawResDto(withdrawAccountPS, transactionPS);
+        return new AccountWithdrawResDto(withdrawAccountPS, transactionPS);
     }
 }
