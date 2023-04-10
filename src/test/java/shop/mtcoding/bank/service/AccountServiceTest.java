@@ -10,15 +10,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import shop.mtcoding.bank.config.dummy.DummyObject;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
-import shop.mtcoding.bank.domain.transaction.TransactRepository;
+import shop.mtcoding.bank.domain.transaction.TransactionRepository;
 import shop.mtcoding.bank.domain.transaction.Transaction;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
-import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountTransferReqDto;
-import shop.mtcoding.bank.dto.account.AccountResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountDepositResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountListResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.AccountSaveResDto;
@@ -44,7 +42,7 @@ class AccountServiceTest extends DummyObject {
     private AccountRepository accountRepository;
 
     @Mock
-    private TransactRepository transactRepository;
+    private TransactionRepository transactRepository;
 
     @Spy
     private ObjectMapper om;

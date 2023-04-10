@@ -5,17 +5,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
-import shop.mtcoding.bank.domain.transaction.TransactRepository;
+import shop.mtcoding.bank.domain.transaction.TransactionRepository;
 import shop.mtcoding.bank.domain.transaction.Transaction;
 import shop.mtcoding.bank.domain.transaction.TransactionEnum;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
-import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountTransferReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountWithdrawReqDto;
-import shop.mtcoding.bank.dto.account.AccountResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.*;
 import shop.mtcoding.bank.handler.ex.CustomApiException;
 
@@ -29,7 +27,7 @@ public class AccountService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
 
-    private final TransactRepository transactRepository;
+    private final TransactionRepository transactRepository;
 
     // 각 리스트(List<Account>)에서 Lazy 로딩으로 등록되어있는 유저 객체를 리턴해도 되지만
     // 굳이 모두 같은 값의 User객체를 가지는데, 굳이 Join문을 추가하지 않고 그냥 따로 User객체를 조회하는게 낫다고 함.
