@@ -83,9 +83,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE (Javascript 요청 허용)
-        configuration.addAllowedOriginPattern("*"); // 모든 IP 주소 허용 (프론트 엔트 IP만 허용)
+        configuration.addAllowedOriginPattern("*"); // 모든 IP 주소 허용 (프론트 엔트 IP만 허용되게 변경)
         configuration.setAllowCredentials(true); // 클라이언트에서 쿠키 요청 허용
-
+        configuration.addExposedHeader("Authorization"); // Preflight 요청의 응답 헤더에 Authorization 추가 (브라우저에 헤더를 노출시키려면 추가해야 함)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // 주소로 요청이 와도 위의 cors 설정 적용
         return source;
