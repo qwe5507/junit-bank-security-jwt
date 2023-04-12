@@ -1,14 +1,21 @@
 package shop.mtcoding.bank.domain.transaction;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import shop.mtcoding.bank.config.dummy.DummyObject;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 
+import javax.persistence.EntityManager;
+import java.util.List;
+
+@ActiveProfiles("test")
 @DataJpaTest // DB 관련된 Bean이 다 올라온다.
 public class TransactionRepositoryImplTest extends DummyObject {
     @Autowired
@@ -18,10 +25,43 @@ public class TransactionRepositoryImplTest extends DummyObject {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private EntityManager em;
 
     @BeforeEach
     public void setUp() {
+        autoincrementReset();
         dataSetting();
+    }
+
+    private void autoincrementReset() {
+        em.createNativeQuery("ALTER TABLE user_tb ALTER COLUMN id RESTART WITH 1").executeUpdate();
+        em.createNativeQuery("ALTER TABLE account_tb ALTER COLUMN id RESTART WITH 1").executeUpdate();
+        em.createNativeQuery("ALTER TABLE transaction_tb ALTER COLUMN id RESTART WITH 1").executeUpdate();
+    }
+
+    @Test
+    public void dataJpa_test1() {
+        List<Transaction> transactionList = transactionRepository.findAll();
+        transactionList.forEach((transaction) -> {
+            System.out.println("테스트 : " + transaction.getId());
+            System.out.println("테스트 : " + transaction.getSender());
+            System.out.println("테스트 : " + transaction.getReceiver());
+            System.out.println("테스트 : " + transaction.getGubun());
+            System.out.println("===================================");
+        });
+    }
+
+    @Test
+    public void dataJpa_test2() {
+        List<Transaction> transactionList = transactionRepository.findAll();
+        transactionList.forEach((transaction) -> {
+            System.out.println("테스트 : " + transaction.getId());
+            System.out.println("테스트 : " + transaction.getSender());
+            System.out.println("테스트 : " + transaction.getReceiver());
+            System.out.println("테스트 : " + transaction.getGubun());
+            System.out.println("===================================");
+        });
     }
 
     private void dataSetting() {
