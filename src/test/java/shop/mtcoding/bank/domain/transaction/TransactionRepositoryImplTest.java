@@ -1,5 +1,6 @@
 package shop.mtcoding.bank.domain.transaction;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +28,20 @@ public class TransactionRepositoryImplTest extends DummyObject {
     @Autowired
     private EntityManager em;
 
+    @BeforeEach
+    public void setUp() {
+        autoincrementReset();
+        dataSetting();
+        em.clear(); // data insert한 데이터가 영속 컨텍스트에 남아있어서, Lazy Loading될떄 쿼리가 발생안함, 테스트를 위해 clear
+    }
+
     @Test
     public void findTransactionList_all_test() throws Exception {
         // given
         Long accountId = 1L;
 
         // when
-        List<Transaction> transactionListPS = transactionRepository.findTransactionList(accountId, TransactionEnum.ALL.getValue(), 0);
+        List<Transaction> transactionListPS = transactionRepository.findTransactionList(accountId, "ALL", 0);
         transactionListPS.forEach((t) -> {
             System.out.println("테스트 : id : " + t.getId());
             System.out.println("테스트 : amount : " + t.getAmount());
@@ -41,15 +49,13 @@ public class TransactionRepositoryImplTest extends DummyObject {
             System.out.println("테스트 : receiver : "+ t.getReceiver());
             System.out.println("테스트 : withdrawAccount잔액 : " + t.getWithdrawAccountBalance());
             System.out.println("테스트 : depositAccount잔액 : " + t.getDepositAccountBalance());
+            System.out.println("테스트 : 잔액 : " + t.getWithdrawAccount().getBalance());
+            System.out.println("테스트 : fullname : " + t.getWithdrawAccount().getUser().getFullname());
             System.out.println("========================================");
         });
-        // then
-    }
 
-    @BeforeEach
-    public void setUp() {
-        autoincrementReset();
-        dataSetting();
+        // then
+        Assertions.assertThat(transactionListPS.get(3).getDepositAccountBalance()).isEqualTo(800L);
     }
 
     private void autoincrementReset() {
