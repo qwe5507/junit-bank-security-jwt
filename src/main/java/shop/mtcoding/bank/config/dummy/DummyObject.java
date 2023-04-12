@@ -12,11 +12,18 @@ import java.time.LocalDateTime;
 
 public class DummyObject {
 
+    /**
+     * @DataJpaTest도 영속성 컨텍스트를 가지고 있기 때문에 더티체킹 되는데
+     * 영속 컨텍스트가 없는 컨트롤러 테스트 같은 곳에서 이 클래스를 사용할 수도 있다.
+     * 그럴 경우 더티체킹이 동작하지 않는다.
+     * 더티체킹이 될지도, 안될지도 모르는 상황이기 떄문에 그냥 수동으로 save
+     */
 
     // 출금 트랜잭션 더미데이터
     protected Transaction newWithdrawTransaction(Account account, AccountRepository accountRepository) {
         account.withdraw(100L); // 1000원이 었다면 1100원이 됨
-        // 더티체킹이 안되기 떄문에 직접 변경 해줘야 함
+        // Repository에서는 더티체킹 동작
+        // 컨트롤러 Test에서는 더티체킹 안됨, 그래서 아래 처럼 수동으로 save
         if (accountRepository != null) {
             accountRepository.save(account);
         }
@@ -37,7 +44,8 @@ public class DummyObject {
     // 입금 트랜잭션 더미데이터
     protected Transaction newDepositTransaction(Account account, AccountRepository accountRepository) {
         account.deposit(100L); // 1000원이 었다면 900원이 됨
-        // 더티체킹이 안되기 떄문에 직접 변경 해줘야 함
+        // Repository에서는 더티체킹 동작
+        // 컨트롤러 Test에서는 더티체킹 안됨, 그래서 아래 처럼 수동으로 save
         if (accountRepository != null) {
             accountRepository.save(account);
         }
@@ -59,7 +67,9 @@ public class DummyObject {
     protected Transaction newTransferTransaction(Account withdrawAccount, Account depositAccount, AccountRepository accountRepository) {
         withdrawAccount.withdraw(100L);
         depositAccount.deposit(100L);
-        // 더티체킹이 안되기 떄문에 직접 변경 해줘야 함
+
+        // Repository에서는 더티체킹 동작
+        // 컨트롤러 Test에서는 더티체킹 안됨, 그래서 아래 처럼 수동으로 save
         if (accountRepository != null) {
             accountRepository.save(withdrawAccount);
             accountRepository.save(depositAccount);

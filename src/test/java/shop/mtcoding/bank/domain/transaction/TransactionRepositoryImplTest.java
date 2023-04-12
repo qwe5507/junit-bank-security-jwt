@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 import shop.mtcoding.bank.config.dummy.DummyObject;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
@@ -27,6 +26,25 @@ public class TransactionRepositoryImplTest extends DummyObject {
 
     @Autowired
     private EntityManager em;
+
+    @Test
+    public void findTransactionList_all_test() throws Exception {
+        // given
+        Long accountId = 1L;
+
+        // when
+        List<Transaction> transactionListPS = transactionRepository.findTransactionList(accountId, TransactionEnum.ALL.getValue(), 0);
+        transactionListPS.forEach((t) -> {
+            System.out.println("테스트 : id : " + t.getId());
+            System.out.println("테스트 : amount : " + t.getAmount());
+            System.out.println("테스트 : sender : " + t.getSender());
+            System.out.println("테스트 : receiver : "+ t.getReceiver());
+            System.out.println("테스트 : withdrawAccount잔액 : " + t.getWithdrawAccountBalance());
+            System.out.println("테스트 : depositAccount잔액 : " + t.getDepositAccountBalance());
+            System.out.println("========================================");
+        });
+        // then
+    }
 
     @BeforeEach
     public void setUp() {
