@@ -94,6 +94,4 @@ class TransactionControllerTest extends DummyObject {
         Transaction transferTransaction3 = transactionRepository
                 .save(newTransferTransaction(cosAccount, ssarAccount1, accountRepository));
     }
-
-
 }

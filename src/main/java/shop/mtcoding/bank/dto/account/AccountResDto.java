@@ -168,4 +168,59 @@ public class AccountResDto {
             }
         }
     }
+
+    @Getter
+    @Setter
+    public static class AccountDetailResDto {
+        private Long id; // 계좌 ID
+        private Long number; // 계좌 번호
+        private Long balance; // 계좌의 최종잔액
+        private List<TransactionDto> transactions = new ArrayList<>();
+
+        public AccountDetailResDto(Account account, List<Transaction> transactions) {
+            this.id = account.getId();
+            this.number = account.getNumber();
+            this.balance = account.getBalance();
+            this.transactions = transactions.stream()
+                    .map((transaction) -> new TransactionDto(transaction, account.getNumber()))
+                    .collect(Collectors.toList());
+        }
+
+        @Getter
+        @Setter
+        public class TransactionDto {
+            private Long id;
+            private String gubun;
+            private Long amount;
+
+            private String sender;
+            private String receiver;
+
+            private String tel;
+            private String createdAt;
+            private Long balance;
+
+            public TransactionDto(Transaction transaction, Long accountNumber) {
+                this.id = transaction.getId();
+                this.gubun = transaction.getGubun().getValue();
+                this.amount = transaction.getAmount();
+                this.sender = transaction.getSender();
+                this.receiver = transaction.getReceiver();
+                this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
+                this.tel = transaction.getTel() == null ? "없음" : transaction.getTel();
+
+                if (transaction.getDepositAccount() == null) {
+                    this.balance = transaction.getWithdrawAccountBalance();
+                } else if (transaction.getWithdrawAccount() == null) {
+                    this.balance = transaction.getDepositAccountBalance();
+                } else {
+                    if (accountNumber.longValue() == transaction.getDepositAccount().getNumber().longValue()) {
+                        this.balance = transaction.getDepositAccountBalance();
+                    } else {
+                        this.balance = transaction.getWithdrawAccountBalance();
+                    }
+                }
+            }
+        }
+    }
 }

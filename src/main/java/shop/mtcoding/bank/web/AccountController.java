@@ -8,12 +8,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import shop.mtcoding.bank.config.auth.LoginUser;
 import shop.mtcoding.bank.dto.ResponseDto;
-import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountTransferReqDto;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountWithdrawReqDto;
-import shop.mtcoding.bank.dto.account.AccountResDto;
 import shop.mtcoding.bank.dto.account.AccountResDto.*;
 import shop.mtcoding.bank.service.AccountService;
 
@@ -59,13 +57,21 @@ public class AccountController {
     public ResponseEntity<?> withdrawAccount(@RequestBody @Valid AccountWithdrawReqDto accountWithdrawReqDto, BindingResult bindingResult,
                                              @AuthenticationPrincipal LoginUser loginUser) {
         AccountWithdrawResDto accountWithdrawResDto = accountService.계좌출금(accountWithdrawReqDto, loginUser.getUser().getId());
-        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 출금 완료",  accountWithdrawResDto), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 출금 완료", accountWithdrawResDto), HttpStatus.OK);
     }
 
     @PostMapping("/s/account/transfer") // 계좌 이체
     public ResponseEntity<?> transferAccount(@RequestBody @Valid AccountTransferReqDto accountTransferReqDto, BindingResult bindingResult,
                                              @AuthenticationPrincipal LoginUser loginUser) {
         AccountTransferResDto accountTransferResDto = accountService.계좌이체(accountTransferReqDto, loginUser.getUser().getId());
-        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 이체 완료",  accountTransferResDto), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 이체 완료", accountTransferResDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/s/account/{number}")
+    public ResponseEntity<?> findDetailAccount(@PathVariable Long number,
+                                               @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                               @AuthenticationPrincipal LoginUser loginUser) {
+        AccountDetailResDto accountDetailResDto = accountService.계좌상세보기(number, loginUser.getUser().getId(), page);
+        return ResponseEntity.ok(new ResponseDto<>(1, "계좌상세보기 성공", accountDetailResDto));
     }
 }

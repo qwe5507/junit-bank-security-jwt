@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
-import shop.mtcoding.bank.domain.transaction.TransactionRepository;
 import shop.mtcoding.bank.domain.transaction.Transaction;
 import shop.mtcoding.bank.domain.transaction.TransactionEnum;
+import shop.mtcoding.bank.domain.transaction.TransactionRepository;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto.AccountDepositReqDto;
@@ -196,5 +196,22 @@ public class AccountService {
 
         // DTO 응답
         return new AccountTransferResDto(withdrawAccountPS, transactionPS);
+    }
+
+    public AccountDetailResDto 계좌상세보기(Long number, Long userId, Integer page) {
+        // 1. 구분값, 페이지고정
+        String gubun = "ALL";
+
+        // 2. 계좌 확인
+        Account accountPS = accountRepository.findByNumber(number)
+                .orElseThrow(() -> new CustomApiException("계좌를 찾을 수 없습니다."));
+
+        // 3. 계좌 소유자 확인 (로그인한 사람과 계좌의 소유자가 동일한지 확인)
+        accountPS.checkOwner(userId);
+
+        // 4. 입출금 목록 조회
+        List<Transaction> transactionList = transactRepository.findTransactionList(accountPS.getId(), gubun, page);
+
+        return new AccountDetailResDto(accountPS, transactionList);
     }
 }
